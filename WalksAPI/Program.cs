@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using WalksAPI.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +10,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// dependency injection
+builder.Services.AddDbContext<WalksDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("WalksConnectionString")));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
