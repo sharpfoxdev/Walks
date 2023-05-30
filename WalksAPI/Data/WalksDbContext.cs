@@ -8,7 +8,8 @@ namespace WalksAPI.Data {
         {
             
         }
-        // sets/collections of entities in a database
+        // sets(mnozina)/collections of entities in a database
+        // creates tables in the database
         public DbSet<Region> Regions { get; set; }
         public DbSet<Difficulty> Difficulties { get; set; }
         public DbSet<Walk> Walks { get; set; }

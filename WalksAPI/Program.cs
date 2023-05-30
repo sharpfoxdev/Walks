@@ -14,6 +14,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<WalksDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("WalksConnectionString")));
 var app = builder.Build();
 
+// migrations - creates tables in the database
+// tools > nuget package manager > package manager console
+// Add-Migration "nameOfMigration" (for example "Initial Migration")
+// Update-Database
+
 // Configure the HTTP request pipeline.
 // this is middleware, it handles requests and responses
 if (app.Environment.IsDevelopment()) {
