@@ -9,8 +9,7 @@ namespace WalksAPI.Controllers {
     [ApiController]
     public class RegionsController : ControllerBase {
         private readonly WalksDbContext _dbContext;
-        public RegionsController(WalksDbContext dbContext)
-        {
+        public RegionsController(WalksDbContext dbContext) {
             // dependency injection, we are passing dbContext as a parameter of ctor or method
             _dbContext = dbContext;
         }
@@ -38,7 +37,7 @@ namespace WalksAPI.Controllers {
             var regionsDomain = _dbContext.Regions.ToList();
             // instead we convert it to the DTO - data transfer object
             var regionsDTO = new List<RegionDto>();
-            foreach(var region in regionsDomain) {
+            foreach (var region in regionsDomain) {
                 regionsDTO.Add(new RegionDto {
                     Id = region.Id,
                     Name = region.Name,
@@ -59,7 +58,7 @@ namespace WalksAPI.Controllers {
             // second option using LINQ
             var regionDomain = _dbContext.Regions.FirstOrDefault(r => r.Id == id);
 
-            if(regionDomain == null) {
+            if (regionDomain == null) {
                 return NotFound();
             }
             var regionDTO = new RegionDto {
@@ -93,14 +92,54 @@ namespace WalksAPI.Controllers {
                 Code = regionDomain.Code,
                 RegionImageUrl = regionDomain.RegionImageUrl
             };
-            return CreatedAtAction(nameof(GetById), new { id = regionDto.Id}, regionDto); // 201
+            return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto); // 201
         }
         // Update region
         // PUT: https://localhost:portnumber/api/regions/{id}
         [HttpPut]
         [Route("{id:Guid}")]
-        public IActionResult Update([FromRoute] Guid id, [FromBody] ) {
+        public IActionResult Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto) {
+            // region domain model
+            var regionDomain = _dbContext.Regions.FirstOrDefault(r => r.Id == id);
+            if (regionDomain == null) {
+                return NotFound();
+            }
+            // map DTO to domain model
+            regionDomain.Code = updateRegionRequestDto.Code;
+            regionDomain.Name = updateRegionRequestDto.Name;
+            regionDomain.RegionImageUrl = updateRegionRequestDto.RegionImageUrl;
 
+            _dbContext.SaveChanges(); // commit changes to the database
+
+            // conert domain model to dto
+            var regionDto = new RegionDto {
+                Id = regionDomain.Id,
+                Name = regionDomain.Name,
+                Code = regionDomain.Code,
+                RegionImageUrl = regionDomain.RegionImageUrl
+            };
+            return Ok(regionDto); // we pass  back the updated data
+        }
+        // Delete Region
+        // DELETE: https://localhost:portnumber/api/regions/{id}
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public IActionResult Delete([FromRoute] Guid id) {
+            // region domain model
+            var regionDomain = _dbContext.Regions.FirstOrDefault(r => r.Id == id);
+            if(regionDomain == null) {  
+                return NotFound();
+            }
+            _dbContext.Regions.Remove(regionDomain);
+            _dbContext.SaveChanges(); // commit changes to the database
+
+            var regionDto = new RegionDto {
+                Id = regionDomain.Id,
+                Name = regionDomain.Name,
+                Code = regionDomain.Code,
+                RegionImageUrl = regionDomain.RegionImageUrl
+            };
+            return Ok(regionDto);
         }
     }
 
