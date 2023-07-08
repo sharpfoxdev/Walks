@@ -4,15 +4,19 @@ using Microsoft.EntityFrameworkCore;
 using WalksAPI.Data;
 using WalksAPI.Models.Domain;
 using WalksAPI.Models.DTO;
+using WalksAPI.Repositories;
 
 namespace WalksAPI.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class RegionsController : ControllerBase {
         private readonly WalksDbContext _dbContext;
-        public RegionsController(WalksDbContext dbContext) {
+        private readonly IRegionRepository regionRepository;
+
+        public RegionsController(WalksDbContext dbContext, IRegionRepository regionRepository) {
             // dependency injection, we are passing dbContext as a parameter of ctor or method
             _dbContext = dbContext;
+            this.regionRepository = regionRepository;
         }
         // GET ALL REGIONS
         // GET: https://localhost:portnumber/api/regions
@@ -35,7 +39,7 @@ namespace WalksAPI.Controllers {
             };*/
 
             // gets a domain model - we dont want to send it to the user (security, coupling)
-            var regionsDomain = await _dbContext.Regions.ToListAsync();
+            var regionsDomain = await regionRepository.GetAllAsync();
             // instead we convert it to the DTO - data transfer object
             var regionsDTO = new List<RegionDto>();
             foreach (var region in regionsDomain) {
@@ -57,7 +61,7 @@ namespace WalksAPI.Controllers {
             // first option
             //var regionDomain = _dbContext.Regions.Find(id);
             // second option using LINQ
-            var regionDomain = await _dbContext.Regions.FirstOrDefaultAsync(r => r.Id == id);
+            var regionDomain = await regionRepository.GetByIdAsync(id);
             if (regionDomain == null) {
                 return NotFound();
             }
@@ -82,8 +86,7 @@ namespace WalksAPI.Controllers {
             };
 
             // use domain model to create region
-            await _dbContext.Regions.AddAsync(regionDomain); // tracking changes
-            await _dbContext.SaveChangesAsync(); // commit changes to the database
+            regionDomain = await regionRepository.CreateAsync(regionDomain);
 
             // we send back, what was created
             var regionDto = new RegionDto {
@@ -99,18 +102,16 @@ namespace WalksAPI.Controllers {
         [HttpPut]
         [Route("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto) {
-            // region domain model
-            var regionDomain = await _dbContext.Regions.FirstOrDefaultAsync(r => r.Id == id);
-            if (regionDomain == null) {
+            // convert DTO do domain model
+            var regionDomain = new Region {
+                Code = updateRegionRequestDto.Code,
+                Name = updateRegionRequestDto.Name,
+                RegionImageUrl = updateRegionRequestDto.RegionImageUrl
+            };
+            regionDomain = await regionRepository.UpdateAsync(id, regionDomain);
+            if(regionDomain == null) {
                 return NotFound();
             }
-            // map DTO to domain model
-            regionDomain.Code = updateRegionRequestDto.Code;
-            regionDomain.Name = updateRegionRequestDto.Name;
-            regionDomain.RegionImageUrl = updateRegionRequestDto.RegionImageUrl;
-
-            await _dbContext.SaveChangesAsync(); // commit changes to the database
-
             // conert domain model to dto
             var regionDto = new RegionDto {
                 Id = regionDomain.Id,
@@ -126,12 +127,10 @@ namespace WalksAPI.Controllers {
         [Route("{id:Guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id) {
             // region domain model
-            var regionDomain = await _dbContext.Regions.FirstOrDefaultAsync(r => r.Id == id);
+            var regionDomain = await regionRepository.DeleteAsync(id);
             if(regionDomain == null) {  
                 return NotFound();
             }
-            _dbContext.Regions.Remove(regionDomain);
-            await _dbContext.SaveChangesAsync(); // commit changes to the database
 
             var regionDto = new RegionDto {
                 Id = regionDomain.Id,
