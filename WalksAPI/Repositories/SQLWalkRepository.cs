@@ -1,4 +1,5 @@
-﻿using WalksAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using WalksAPI.Data;
 using WalksAPI.Models.Domain;
 
 namespace WalksAPI.Repositories {
@@ -20,7 +21,7 @@ namespace WalksAPI.Repositories {
         }
 
         public async Task<List<Walk>> GetAllAsync() {
-            throw new NotImplementedException();
+            return await dbContext.Walks.Include("Difficulty").Include("Region").ToListAsync();
         }
 
         public async Task<Walk?> GetByIdAsync(Guid id) {

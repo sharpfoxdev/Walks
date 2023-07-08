@@ -25,5 +25,15 @@ namespace WalksAPI.Controllers {
             walkDomain = await walkRepository.CreateAsync(walkDomain);
             return Ok(mapper.Map<WalkDto>(walkDomain));
         }
+
+        // GET - ALL WALKS
+        [HttpGet]
+        public async Task<IActionResult> GetAll() {
+            var walksDomain = await walkRepository.GetAllAsync();
+            
+            // map to list of DTOs
+            return Ok(mapper.Map<List<WalkDto>>(walksDomain));
+            
+        }
     }
 }
