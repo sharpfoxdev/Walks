@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WalksAPI.Data;
+using WalksAPI.Mappings;
 using WalksAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,7 @@ builder.Services.AddDbContext<WalksDbContext>(options => options.UseSqlServer(bu
 //injects IRegionRepository with the implementation SQLRegionRepository
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
 
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 var app = builder.Build();
 
 // migrations - creates tables in the database

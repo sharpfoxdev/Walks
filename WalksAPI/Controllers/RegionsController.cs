@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WalksAPI.Data;
@@ -10,13 +11,13 @@ namespace WalksAPI.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class RegionsController : ControllerBase {
-        private readonly WalksDbContext _dbContext;
         private readonly IRegionRepository regionRepository;
+        private readonly IMapper mapper;
 
-        public RegionsController(WalksDbContext dbContext, IRegionRepository regionRepository) {
+        public RegionsController(IRegionRepository regionRepository, IMapper mapper) {
             // dependency injection, we are passing dbContext as a parameter of ctor or method
-            _dbContext = dbContext;
             this.regionRepository = regionRepository;
+            this.mapper = mapper;
         }
         // GET ALL REGIONS
         // GET: https://localhost:portnumber/api/regions
@@ -41,7 +42,9 @@ namespace WalksAPI.Controllers {
             // gets a domain model - we dont want to send it to the user (security, coupling)
             var regionsDomain = await regionRepository.GetAllAsync();
             // instead we convert it to the DTO - data transfer object
-            var regionsDTO = new List<RegionDto>();
+            
+            // mapping without automapper
+            /*var regionsDTO = new List<RegionDto>();
             foreach (var region in regionsDomain) {
                 regionsDTO.Add(new RegionDto {
                     Id = region.Id,
@@ -49,8 +52,10 @@ namespace WalksAPI.Controllers {
                     Code = region.Code,
                     RegionImageUrl = region.RegionImageUrl
                 });
-            }
+            }*/
 
+            //mapping with automapper from regionsDomain to DTO
+            var regionsDTO = mapper.Map<List<RegionDto>>(regionsDomain);
             return Ok(regionsDTO);
         }
 
@@ -65,12 +70,7 @@ namespace WalksAPI.Controllers {
             if (regionDomain == null) {
                 return NotFound();
             }
-            var regionDTO = new RegionDto {
-                Id = regionDomain.Id,
-                Name = regionDomain.Name,
-                Code = regionDomain.Code,
-                RegionImageUrl = regionDomain.RegionImageUrl
-            };
+            var regionDTO = mapper.Map<RegionDto>(regionDomain);
             return Ok(regionDTO);
         }
         // POST To Create New Region
@@ -78,23 +78,14 @@ namespace WalksAPI.Controllers {
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto) {
             // convert DTO to domain model
-            var regionDomain = new Region {
-                Id = Guid.NewGuid(),
-                Name = addRegionRequestDto.Name,
-                Code = addRegionRequestDto.Code,
-                RegionImageUrl = addRegionRequestDto.RegionImageUrl
-            };
+            var regionDomain = mapper.Map<Region>(addRegionRequestDto);
 
             // use domain model to create region
             regionDomain = await regionRepository.CreateAsync(regionDomain);
 
             // we send back, what was created
-            var regionDto = new RegionDto {
-                Id = regionDomain.Id,
-                Name = regionDomain.Name,
-                Code = regionDomain.Code,
-                RegionImageUrl = regionDomain.RegionImageUrl
-            };
+            var regionDto = mapper.Map<RegionDto>(regionDomain);
+
             return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto); // 201
         }
         // Update region
@@ -103,22 +94,14 @@ namespace WalksAPI.Controllers {
         [Route("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto) {
             // convert DTO do domain model
-            var regionDomain = new Region {
-                Code = updateRegionRequestDto.Code,
-                Name = updateRegionRequestDto.Name,
-                RegionImageUrl = updateRegionRequestDto.RegionImageUrl
-            };
+            var regionDomain = mapper.Map<Region>(updateRegionRequestDto);
             regionDomain = await regionRepository.UpdateAsync(id, regionDomain);
             if(regionDomain == null) {
                 return NotFound();
             }
             // conert domain model to dto
-            var regionDto = new RegionDto {
-                Id = regionDomain.Id,
-                Name = regionDomain.Name,
-                Code = regionDomain.Code,
-                RegionImageUrl = regionDomain.RegionImageUrl
-            };
+            var regionDto = mapper.Map<RegionDto>(regionDomain);
+
             return Ok(regionDto); // we pass  back the updated data
         }
         // Delete Region
@@ -132,12 +115,7 @@ namespace WalksAPI.Controllers {
                 return NotFound();
             }
 
-            var regionDto = new RegionDto {
-                Id = regionDomain.Id,
-                Name = regionDomain.Name,
-                Code = regionDomain.Code,
-                RegionImageUrl = regionDomain.RegionImageUrl
-            };
+            var regionDto = mapper.Map<RegionDto>(regionDomain);
             return Ok(regionDto);
         }
     }
