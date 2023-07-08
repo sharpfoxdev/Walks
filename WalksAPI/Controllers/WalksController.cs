@@ -46,7 +46,7 @@ namespace WalksAPI.Controllers {
             return Ok(mapper.Map<WalkDto>(walkDomain));
         }
 
-        //UPDAYE - BY ID
+        //UPDATE - BY ID
         [HttpPut]
         [Route("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWalkRequestDto updateWalkRequestDto) {
@@ -57,5 +57,18 @@ namespace WalksAPI.Controllers {
             }
             return Ok(mapper.Map<WalkDto>(walkDomain));
         }
+        // DELETE
+        [HttpDelete]
+        [Route("{id:Guid}")]
+
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id) {
+            var walkDomain = await walkRepository.DeleteAsync(id);
+            if (walkDomain == null) {
+                return NotFound();
+            }
+            return Ok(mapper.Map<WalkDto>(walkDomain));
+        }
+
     }
 }
