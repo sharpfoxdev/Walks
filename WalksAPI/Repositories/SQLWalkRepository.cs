@@ -17,7 +17,16 @@ namespace WalksAPI.Repositories {
         }
 
         public async Task<Walk?> DeleteAsync(Guid id) {
-            throw new NotImplementedException();
+            var existingWalk = await dbContext.Walks
+                .Include("Difficulty")
+                .Include("Region")
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (existingWalk == null) {
+                return null;
+            }
+            dbContext.Walks.Remove(existingWalk);
+            await dbContext.SaveChangesAsync();
+            return existingWalk;
         }
 
         public async Task<List<Walk>> GetAllAsync() {
@@ -25,11 +34,29 @@ namespace WalksAPI.Repositories {
         }
 
         public async Task<Walk?> GetByIdAsync(Guid id) {
-            throw new NotImplementedException();
+            return await dbContext.Walks
+                .Include("Difficulty")
+                .Include("Region")
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public Task<Walk?> UpdateAsync(Guid id, Walk walk) {
-            throw new NotImplementedException();
+        public async Task<Walk?> UpdateAsync(Guid id, Walk walk) {
+            var existingWalk = await dbContext.Walks
+                .Include("Difficulty")
+                .Include("Region")
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if(existingWalk == null) {
+                return null;
+            }
+            existingWalk.Name = walk.Name;
+            existingWalk.Description = walk.Description;
+            existingWalk.LengthInKm = walk.LengthInKm;
+            existingWalk.WalkImageUrl = walk.WalkImageUrl;
+            existingWalk.DifficultyId = walk.DifficultyId;
+            existingWalk.RegionId = walk.RegionId;
+
+            await dbContext.SaveChangesAsync();
+            return existingWalk;
         }
     }
 }

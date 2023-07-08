@@ -35,5 +35,27 @@ namespace WalksAPI.Controllers {
             return Ok(mapper.Map<List<WalkDto>>(walksDomain));
             
         }
+        // GET - BY ID
+        [HttpGet]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid id) {
+            var walkDomain = await walkRepository.GetByIdAsync(id);
+            if (walkDomain == null) {
+                return NotFound();
+            }
+            return Ok(mapper.Map<WalkDto>(walkDomain));
+        }
+
+        //UPDAYE - BY ID
+        [HttpPut]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWalkRequestDto updateWalkRequestDto) {
+            var walkDomain = mapper.Map<Walk>(updateWalkRequestDto);
+            walkDomain = await walkRepository.UpdateAsync(id, walkDomain);
+            if(walkDomain == null) {
+                return NotFound();
+            }
+            return Ok(mapper.Map<WalkDto>(walkDomain));
+        }
     }
 }
