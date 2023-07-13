@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WalksAPI.CustomActionFilters;
 using WalksAPI.Data;
 using WalksAPI.Models.Domain;
 using WalksAPI.Models.DTO;
@@ -76,10 +77,8 @@ namespace WalksAPI.Controllers {
         // POST To Create New Region
         // POST: https://localhost:portnumber/api/regions
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto) {
-            if (!ModelState.IsValid) {
-                return BadRequest(ModelState);
-            }
             // convert DTO to domain model
             var regionDomain = mapper.Map<Region>(addRegionRequestDto);
 
@@ -95,10 +94,9 @@ namespace WalksAPI.Controllers {
         // PUT: https://localhost:portnumber/api/regions/{id}
         [HttpPut]
         [Route("{id:Guid}")]
+        [ValidateModel]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto) {
-            if (!ModelState.IsValid) {
-                return BadRequest(ModelState);
-            }
+
             // convert DTO do domain model
             var regionDomain = mapper.Map<Region>(updateRegionRequestDto);
             regionDomain = await regionRepository.UpdateAsync(id, regionDomain);
