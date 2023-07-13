@@ -20,6 +20,9 @@ namespace WalksAPI.Controllers {
         // CREATE - POST
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto) {
+            if(!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
             // map DTO to domain model
             var walkDomain = mapper.Map<Walk>(addWalkRequestDto);
             walkDomain = await walkRepository.CreateAsync(walkDomain);
@@ -50,6 +53,9 @@ namespace WalksAPI.Controllers {
         [HttpPut]
         [Route("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWalkRequestDto updateWalkRequestDto) {
+            if(!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
             var walkDomain = mapper.Map<Walk>(updateWalkRequestDto);
             walkDomain = await walkRepository.UpdateAsync(id, walkDomain);
             if(walkDomain == null) {
