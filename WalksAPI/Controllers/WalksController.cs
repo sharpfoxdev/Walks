@@ -60,8 +60,6 @@ namespace WalksAPI.Controllers {
         // DELETE
         [HttpDelete]
         [Route("{id:Guid}")]
-
-        [Route("{id:Guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id) {
             var walkDomain = await walkRepository.DeleteAsync(id);
             if (walkDomain == null) {

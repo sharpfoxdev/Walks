@@ -77,6 +77,9 @@ namespace WalksAPI.Controllers {
         // POST: https://localhost:portnumber/api/regions
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto) {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
             // convert DTO to domain model
             var regionDomain = mapper.Map<Region>(addRegionRequestDto);
 
@@ -93,6 +96,9 @@ namespace WalksAPI.Controllers {
         [HttpPut]
         [Route("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto) {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
             // convert DTO do domain model
             var regionDomain = mapper.Map<Region>(updateRegionRequestDto);
             regionDomain = await regionRepository.UpdateAsync(id, regionDomain);
