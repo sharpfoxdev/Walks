@@ -29,8 +29,21 @@ namespace WalksAPI.Repositories {
             return existingWalk;
         }
 
-        public async Task<List<Walk>> GetAllAsync() {
-            return await dbContext.Walks.Include("Difficulty").Include("Region").ToListAsync();
+        public async Task<List<Walk>> GetAllAsync(string? filterOn = null, string? filterQuery = null) {
+            var queryableWalks = dbContext.Walks
+                .Include("Difficulty")
+                .Include("Region")
+                .AsQueryable();
+
+            if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterOn) == false) {
+                if(filterOn.Equals("Name", StringComparison.OrdinalIgnoreCase)) {
+                    queryableWalks = queryableWalks.Where(x => x.Name.Contains(filterQuery));
+
+                }
+            }
+            return await queryableWalks.ToListAsync();
+
+            //return await dbContext.Walks.Include("Difficulty").Include("Region").ToListAsync();
         }
 
         public async Task<Walk?> GetByIdAsync(Guid id) {

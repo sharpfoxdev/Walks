@@ -29,10 +29,10 @@ namespace WalksAPI.Controllers {
         }
 
         // GET - ALL WALKS
+        // /api/walks?filterOn=Name&filterQuery=substring
         [HttpGet]
-        public async Task<IActionResult> GetAll() {
-            var walksDomain = await walkRepository.GetAllAsync();
-            
+        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery) {
+            var walksDomain = await walkRepository.GetAllAsync(filterOn, filterQuery);
             // map to list of DTOs
             return Ok(mapper.Map<List<WalkDto>>(walksDomain));
             
