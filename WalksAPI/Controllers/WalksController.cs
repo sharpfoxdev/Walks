@@ -31,11 +31,12 @@ namespace WalksAPI.Controllers {
         // GET - ALL WALKS
         // /api/walks?filterOn=Name&filterQuery=substring
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery) {
-            var walksDomain = await walkRepository.GetAllAsync(filterOn, filterQuery);
+        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery, 
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending, 
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize  = 1000) {
+            var walksDomain = await walkRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending ?? true, pageNumber, pageSize); // if null, we pass true
             // map to list of DTOs
-            return Ok(mapper.Map<List<WalkDto>>(walksDomain));
-            
+            return Ok(mapper.Map<List<WalkDto>>(walksDomain));  
         }
         // GET - BY ID
         [HttpGet]

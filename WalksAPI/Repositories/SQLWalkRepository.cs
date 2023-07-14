@@ -29,19 +29,33 @@ namespace WalksAPI.Repositories {
             return existingWalk;
         }
 
-        public async Task<List<Walk>> GetAllAsync(string? filterOn = null, string? filterQuery = null) {
-            var queryableWalks = dbContext.Walks
+        public async Task<List<Walk>> GetAllAsync(string? filterOn = null, string? filterQuery = null, 
+            string? sortBy = null, bool isAscending = true, 
+            int pageNumber = 1, int pageSize = 1000) {
+            var walksQuery = dbContext.Walks
                 .Include("Difficulty")
                 .Include("Region")
                 .AsQueryable();
-
+            // Filtering
             if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterOn) == false) {
                 if(filterOn.Equals("Name", StringComparison.OrdinalIgnoreCase)) {
-                    queryableWalks = queryableWalks.Where(x => x.Name.Contains(filterQuery));
+                    walksQuery = walksQuery.Where(x => x.Name.Contains(filterQuery));
 
                 }
             }
-            return await queryableWalks.ToListAsync();
+            // Sorting
+            if (string.IsNullOrWhiteSpace(sortBy) == false) {
+                if(sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase)) {
+                    walksQuery = isAscending ? walksQuery.OrderBy(x => x.Name) : walksQuery.OrderByDescending(x => x.Name);
+                }
+                else if(sortBy.Equals("Length", StringComparison.OrdinalIgnoreCase)) {
+                    walksQuery = isAscending ? walksQuery.OrderBy(x => x.LengthInKm) : walksQuery.OrderByDescending(x => x.LengthInKm);
+                }
+            }
+            // Pagination
+            int skipResults = (pageNumber - 1) * pageSize; // formula for skipping results in the beggining
+
+            return await walksQuery.Skip(skipResults).Take(pageSize).ToListAsync();
 
             //return await dbContext.Walks.Include("Difficulty").Include("Region").ToListAsync();
         }
