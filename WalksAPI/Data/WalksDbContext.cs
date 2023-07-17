@@ -4,7 +4,7 @@ using WalksAPI.Models.Domain;
 namespace WalksAPI.Data {
     public class WalksDbContext : DbContext
     {
-        public WalksDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions){}
+        public WalksDbContext(DbContextOptions<WalksDbContext> dbContextOptions) : base(dbContextOptions){}
         // sets(mnozina)/collections of entities in a database
         // creates tables in the database
         public DbSet<Region> Regions { get; set; }
