@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WalksAPI.CustomActionFilters;
 using WalksAPI.Models.DTO;
+using WalksAPI.Repositories;
 
 namespace WalksAPI.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase {
         private readonly UserManager<IdentityUser> userManager;
+        private readonly ITokenRepository tokenRepository;
 
-        public AuthController(UserManager<IdentityUser> userManager)
+        public AuthController(UserManager<IdentityUser> userManager, ITokenRepository tokenRepository)
         {
             this.userManager = userManager;
+            this.tokenRepository = tokenRepository;
         }
         // POST /api/Auth/Register
         [HttpPost]
@@ -51,8 +54,15 @@ namespace WalksAPI.Controllers {
             if (!passwordValid) {
                 return BadRequest("Invalid credentials");
             }
-            // here we will create token in the next lecture
-            return Ok();
+            var roles = await userManager.GetRolesAsync(identityUser);
+            if(roles == null) {
+                return BadRequest("No roles for the user");
+            }
+            var jwtToken = tokenRepository.CreateJWTToken(identityUser, roles.ToList());
+            var response = new LoginResponseDto {
+                JwtToken = jwtToken
+            };
+            return Ok(response);
         }
     }
 }

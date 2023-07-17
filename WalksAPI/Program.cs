@@ -24,6 +24,7 @@ builder.Services.AddDbContext<WalksAuthDbContext>(options => options.UseSqlServe
 //injects IRegionRepository with the implementation SQLRegionRepository
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
 builder.Services.AddScoped<IWalkRepository, SQLWalkRepository>();
+builder.Services.AddScoped<ITokenRepository, SQLTokenRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
