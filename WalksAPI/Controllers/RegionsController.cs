@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using WalksAPI.CustomActionFilters;
 using WalksAPI.Data;
 using WalksAPI.Models.Domain;
@@ -15,17 +16,24 @@ namespace WalksAPI.Controllers {
     public class RegionsController : ControllerBase {
         private readonly IRegionRepository regionRepository;
         private readonly IMapper mapper;
+        private readonly ILogger<RegionsController> logger;
 
-        public RegionsController(IRegionRepository regionRepository, IMapper mapper) {
+        public RegionsController(IRegionRepository regionRepository, IMapper mapper,
+            ILogger<RegionsController> logger) 
+        {
             // dependency injection, we are passing dbContext as a parameter of ctor or method
             this.regionRepository = regionRepository;
             this.mapper = mapper;
+            this.logger = logger;
         }
         // GET ALL REGIONS
         // GET: https://localhost:portnumber/api/regions
         [HttpGet]
-        [Authorize(Roles = "Reader,Writer")]
+        //[Authorize(Roles = "Reader,Writer")]
         public async Task<IActionResult> GetAll() {
+            //logging
+            logger.LogInformation("Getting all regions");
+
             // hard coded way
             /*var regions = new List<Region> {
                 new Region {
@@ -45,7 +53,7 @@ namespace WalksAPI.Controllers {
             // gets a domain model - we dont want to send it to the user (security, coupling)
             var regionsDomain = await regionRepository.GetAllAsync();
             // instead we convert it to the DTO - data transfer object
-            
+
             // mapping without automapper
             /*var regionsDTO = new List<RegionDto>();
             foreach (var region in regionsDomain) {
@@ -57,6 +65,8 @@ namespace WalksAPI.Controllers {
                 });
             }*/
 
+
+            logger.LogInformation($"Finished getting all regions with data: {JsonSerializer.Serialize(regionsDomain)}");
             //mapping with automapper from regionsDomain to DTO
             var regionsDTO = mapper.Map<List<RegionDto>>(regionsDomain);
             return Ok(regionsDTO);
