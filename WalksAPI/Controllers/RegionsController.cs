@@ -32,8 +32,9 @@ namespace WalksAPI.Controllers {
         //[Authorize(Roles = "Reader,Writer")]
         public async Task<IActionResult> GetAll() {
             //logging
-            logger.LogInformation("Getting all regions");
+            //logger.LogInformation("Getting all regions");
 
+            //throw new Exception("this is new exception");
             // hard coded way
             /*var regions = new List<Region> {
                 new Region {
