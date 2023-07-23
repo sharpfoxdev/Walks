@@ -76,7 +76,7 @@ namespace WalksAPI.Controllers {
         // GET SINGLE REGION (Get Region By ID)
         // GET: https://localhost:portnumber/api/regions/{id}
         [HttpGet("{id:Guid}")] // Guid is a data type
-        [Authorize(Roles = "Reader,Writer")]
+        //[Authorize(Roles = "Reader,Writer")]
         public async Task<IActionResult> GetById([FromRoute] Guid id) {
             // first option
             //var regionDomain = _dbContext.Regions.Find(id);
@@ -92,7 +92,7 @@ namespace WalksAPI.Controllers {
         // POST: https://localhost:portnumber/api/regions
         [HttpPost]
         [ValidateModel]
-        [Authorize(Roles = "Writer")]
+        //[Authorize(Roles = "Writer")]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto) {
             // convert DTO to domain model
             var regionDomain = mapper.Map<Region>(addRegionRequestDto);
@@ -110,7 +110,7 @@ namespace WalksAPI.Controllers {
         [HttpPut]
         [Route("{id:Guid}")]
         [ValidateModel]
-        [Authorize(Roles = "Writer")]
+        //[Authorize(Roles = "Writer")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto) {
 
             // convert DTO do domain model
@@ -128,7 +128,7 @@ namespace WalksAPI.Controllers {
         // DELETE: https://localhost:portnumber/api/regions/{id}
         [HttpDelete]
         [Route("{id:Guid}")]
-        [Authorize(Roles = "Writer")]
+        //[Authorize(Roles = "Writer")]
         public async Task<IActionResult> Delete([FromRoute] Guid id) {
             // region domain model
             var regionDomain = await regionRepository.DeleteAsync(id);

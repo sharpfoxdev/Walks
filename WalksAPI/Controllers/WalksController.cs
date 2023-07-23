@@ -10,7 +10,7 @@ using WalksAPI.Repositories;
 namespace WalksAPI.Controllers {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class WalksController : ControllerBase {
         private readonly IMapper mapper;
         private readonly IWalkRepository walkRepository;
