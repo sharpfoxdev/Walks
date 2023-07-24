@@ -56,5 +56,33 @@ namespace Walks.UI.Controllers {
             }
             return View();
 		}
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id) {
+            var client = httpClientFactory.CreateClient();
+            var response = await client.GetFromJsonAsync<RegionDto>($"https://localhost:7275/api/regions/{id.ToString()}");
+            if(response is not null) {
+                return View(response);
+            }
+            
+            return View(null);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(RegionDto regionDto) {
+            var client = httpClientFactory.CreateClient();
+            var httpRequestMessage = new HttpRequestMessage() {
+                Method = HttpMethod.Put,
+                RequestUri = new Uri($"https://localhost:7275/api/regions/{regionDto.Id}"),
+                Content = new StringContent(JsonSerializer.Serialize(regionDto), Encoding.UTF8, "application/json")
+            };
+
+            var httpResponseMessage = await client.SendAsync(httpRequestMessage);
+            httpResponseMessage.EnsureSuccessStatusCode();
+            var response = await httpRequestMessage.Content.ReadFromJsonAsync<RegionDto>();
+            if(response != null) {
+                return RedirectToAction("Edit", "Regions");
+            }
+            return View();
+        }
     }
 }
