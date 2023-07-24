@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Text.Json;
+using Walks.UI.Models;
 using Walks.UI.Models.DTO;
 
 namespace Walks.UI.Controllers {
@@ -31,5 +34,27 @@ namespace Walks.UI.Controllers {
 
             return View(response);
         }
+        [HttpGet]
+        public IActionResult Add() {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Add(AddRegionViewModel addRegionViewModel) {
+            var client = httpClientFactory.CreateClient();
+            var httpRequestMessage = new HttpRequestMessage() {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri("https://localhost:7275/api/regions"),
+                Content = new StringContent(JsonSerializer.Serialize(addRegionViewModel), Encoding.UTF8, "application/json")
+            };
+            var httpResponseMessage = await client.SendAsync(httpRequestMessage);
+
+            httpResponseMessage.EnsureSuccessStatusCode();
+
+            var response = await httpResponseMessage.Content.ReadFromJsonAsync<RegionDto>();
+            if(response != null) {
+                return RedirectToAction("Index", "Regions");
+            }
+            return View();
+		}
     }
 }
